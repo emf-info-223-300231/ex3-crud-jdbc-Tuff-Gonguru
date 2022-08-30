@@ -528,6 +528,7 @@ public class DateTimeLib {
    * @return la même date au format String
    */
   public static String dateToString(Date date, String format) {
+      
     String sDate = "...";
     if (date != null) {
       SimpleDateFormat ldf = getLocaleFormat(format);
@@ -1044,6 +1045,7 @@ public class DateTimeLib {
    * @return l'objet LocalDate correspondant à la date de type Date.
    */
   public static LocalDate dateToLocalDate(Date date) {
+      
     if (date != null) {
       return Instant.ofEpochMilli(date.getTime()).atZone(ZoneId.systemDefault()).toLocalDate();
     } else {
@@ -1059,6 +1061,7 @@ public class DateTimeLib {
    * @return l'objet Date correspondant à l'objet LocalDate
    */
   public static Date localDateToDate(LocalDate localDate) {
+      
     if (localDate != null) {
       return Date.from(Instant.from(localDate.atStartOfDay(ZoneId.systemDefault())));
     } else {
