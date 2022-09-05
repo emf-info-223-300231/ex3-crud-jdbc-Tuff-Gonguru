@@ -2,6 +2,7 @@ package app.presentation;
 
 import app.beans.Personne;
 import app.exceptions.MyDBException;
+import app.helpers.DateTimeLib;
 import app.helpers.JfxPopup;
 import app.workers.DbWorker;
 import java.net.URL;
@@ -16,6 +17,7 @@ import javafx.scene.control.DatePicker;
 import java.io.File;
 import app.workers.DbWorkerItf;
 import app.workers.PersonneManager;
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Platform;
@@ -77,8 +79,10 @@ public class MainCtrl implements Initializable {
   @Override
   public void initialize(URL url, ResourceBundle rb) {
     dbWrk = new DbWorker();
-    ouvrirDB();
     manPers = new PersonneManager();
+    ouvrirDB();
+    btnAnnuler.setVisible(false);
+    btnSauver.setVisible(false);
   }
 
   @FXML
@@ -93,37 +97,65 @@ public class MainCtrl implements Initializable {
   
   @FXML
   private void actionEnd(ActionEvent event) {
-  }
+  
+      afficherPersonne(manPers.finPersonne());
+          }
 
   @FXML
   private void debut(ActionEvent event) {
+      afficherPersonne(manPers.debutPersonne());
   }
 
   @FXML
-  private void menuAjouter(ActionEvent event) {
+  private void menuAjouter(ActionEvent event) throws MyDBException {
+      
+      rendreVisibleBoutonsDepl(false);
+//dbWrk.creer(manPers.courantPersonne());
+      modeAjout = true;
+      effacerContenuChamps();
   }
   
 
   @FXML
-  private void menuModifier(ActionEvent event) {
+  private void menuModifier(ActionEvent event) throws MyDBException {
+      rendreVisibleBoutonsDepl(false);
+      dbWrk.modifier(manPers.courantPersonne());
+      modeAjout = false;
   }
 
   @FXML
-  private void menuEffacer(ActionEvent event) {
-
+  private void menuEffacer(ActionEvent event) throws MyDBException {
+      dbWrk.effacer(manPers.courantPersonne());
   }
 
   @FXML
-  private void menuQuitter(ActionEvent event) {
+  private void menuQuitter(ActionEvent event) throws MyDBException {
+      
+      dbWrk.deconnecter();
+      System.exit(1);
   }
 
   @FXML
   private void annulerPersonne(ActionEvent event) {
+      
+      modeAjout=false;
+      afficherPersonne(manPers.courantPersonne());
+      rendreVisibleBoutonsDepl(true);
   }
 
   @FXML
-  private void sauverPersonne(ActionEvent event) {
-
+  private void sauverPersonne(ActionEvent event) throws MyDBException {
+     
+      Personne p = new Personne(Integer.valueOf(txtPK.getText()),txtNom.getText(), txtPrenom.getText(), java.sql.Date.valueOf(dateNaissance.getValue()), Integer.valueOf(txtNo.getText()), txtRue.getText(), Integer.valueOf(txtNPA.getText()), txtLocalite.getText(), Boolean.valueOf(ckbActif.getText()), Double.valueOf(txtSalaire.getText()), new Date() );
+      if (modeAjout==true) {     
+          dbWrk.creer(p); 
+      }else{
+          dbWrk.modifier(p);  
+      }
+      
+      p = manPers.setPersonnes(dbWrk.lirePersonnes());
+      afficherPersonne(p);
+      rendreVisibleBoutonsDepl(true);
   }
 
   public void quitter() {
@@ -140,8 +172,16 @@ public class MainCtrl implements Initializable {
    */
   private void afficherPersonne(Personne p) {
     if (p != null) {
+      txtPK.setText(String.valueOf(p.getPkPers()));
       txtPrenom.setText(p.getPrenom());
       txtNom.setText(p.getNom());
+      dateNaissance.setValue(DateTimeLib.dateToLocalDate(p.getDateNaissance()));
+      txtNo.setText(String.valueOf(p.getNoRue()));
+      txtRue.setText(p.getRue());
+      txtNPA.setText(String.valueOf(p.getNpa()));
+      txtLocalite.setText(p.getLocalite());
+      ckbActif.setText(String.valueOf(p.isActif()));
+      txtSalaire.setText(String.valueOf(p.getSalaire()));
     }
   }
 
@@ -161,7 +201,9 @@ public class MainCtrl implements Initializable {
           System.out.println("Base de données pas définie");
       }
       System.out.println("------- DB OK ----------");
-      afficherPersonne(manPers.precedentPersonne());
+      Personne p;
+      p = manPers.setPersonnes(dbWrk.lirePersonnes());
+      afficherPersonne(p);
     } catch (MyDBException ex) {
       JfxPopup.displayError("ERREUR", "Une erreur s'est produite", ex.getMessage());
       System.exit(1);
@@ -180,12 +222,12 @@ public class MainCtrl implements Initializable {
   private void effacerContenuChamps() {
     txtNom.setText("");
     txtPrenom.setText("");
-    txtPK.setText("");
-    txtNo.setText("");
+    txtPK.setText("0");
+    txtNo.setText("0");
     txtRue.setText("");
-    txtNPA.setText("");
+    txtNPA.setText("0");
     txtLocalite.setText("");
-    txtSalaire.setText("");
+    txtSalaire.setText("0.0");
     ckbActif.setSelected(false);
   }
 
