@@ -130,10 +130,10 @@ public class DbWorker implements DbWorkerItf {
             ps.setDouble(9, p1.getSalaire());
             //DateTimeLib.getToday();
             ps.setDate(10, new java.sql.Date(p1.getDateModif().getTime()));
-
-            ResultSet rs = ps.getGeneratedKeys();
-            rs.next();
-            p1.setPkPers(rs.getInt(1));
+            //ps.execute();
+//            ResultSet rs = ps.getGeneratedKeys();
+//            rs.next();
+//            p1.setPkPers(rs.getInt(1));
 
             int nb = ps.executeUpdate();
             if (nb != 1) {
@@ -153,7 +153,7 @@ public class DbWorker implements DbWorkerItf {
 
     @Override
     public void modifier(Personne p1) throws MyDBException {
-        String prep = "update t_personne set Prenom=?, Nom=?, Date_naissance=?, No_rue=?, Rue=?, NPA=?, Ville=?, Actif=?, Salaire=?, date_modif=? where pk=?";
+        String prep = "update t_personne set Prenom=?, Nom=?, Date_naissance=?, No_rue=?, Rue=?, NPA=?, Ville=?, Actif=?, Salaire=?, date_modif=? where PK_PERS=?";
 
         try ( PreparedStatement ps = dbConnexion.prepareStatement(prep)) {
 
@@ -166,10 +166,9 @@ public class DbWorker implements DbWorkerItf {
             ps.setString(7, p1.getLocalite());
             ps.setBoolean(8, p1.isActif());
             ps.setDouble(9, p1.getSalaire());
-            //DateTimeLib.getToday();
-            ps.setDate(10, (Date) DateTimeLib.getToday());
+            ps.setTimestamp(10, new Timestamp(p1.getDateModif().getTime()));
             ps.setInt(11 , p1.getPkPers());
-            
+            //ps.execute();
             int nb = ps.executeUpdate();
             if (nb != 1) {
                 System.out.println("Erreur de màj");
@@ -184,7 +183,7 @@ public class DbWorker implements DbWorkerItf {
 
     @Override
     public void effacer(Personne p) throws MyDBException {
-        String prep = "delete t_personne where PK_PERS=?";
+        String prep = "delete from t_personne where PK_PERS=?";
 
         try ( PreparedStatement ps = dbConnexion.prepareStatement(prep)) {
 

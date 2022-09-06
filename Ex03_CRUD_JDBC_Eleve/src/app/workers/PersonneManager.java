@@ -22,24 +22,23 @@ public class PersonneManager {
     public Personne courantPersonne() {
 
         if (listePersonnes ==null || listePersonnes.isEmpty()) {
-            return null;
+            System.out.println("test erreur");
         }
         if (index>= listePersonnes.size()) {
-            index = listePersonnes.size() -1;
+            index = index -1;
         }
         return listePersonnes.get(index);
     }
 
     public Personne debutPersonne() {
-
-        return listePersonnes.get(0);
+        index=0;
+        return listePersonnes.get(index);
     }
 
     public Personne finPersonne() {
-        int fin = 0;
-        fin = listePersonnes.size();
-        fin--;
-        return listePersonnes.get(fin);
+ 
+        index=listePersonnes.size()-1;
+        return listePersonnes.get(index);
     }
 
     public Personne precedentPersonne() {
@@ -55,12 +54,13 @@ public class PersonneManager {
     }
 
     public Personne setPersonnes(List<Personne> personnes) {
+        
         listePersonnes = personnes;
-        return listePersonnes.get(index);
+        return courantPersonne();
     }
 
     public Personne suivantPersonne() {
-        if (index < listePersonnes.size()) {
+        if (index < listePersonnes.size()-1) {
             index++;
         }
 
